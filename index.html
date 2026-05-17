@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СТРАХ — ЦЕ ЛИШЕ ПОЧАТОК · Квест-рум жахів</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Special+Elite&family=Unbounded:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070506;
+    --bg-2:#0d0809;
+    --ink:#e8e2e0;
+    --ink-dim:#8a8280;
+    --blood:#a51016;
+    --blood-bright:#e11a22;
+    --blood-deep:#5c0a0d;
+    --bone:#d8cfc2;
+    --line:rgba(165,16,22,.22);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Oswald',sans-serif;
+    overflow-x:hidden;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--blood);color:#fff}
+
+  /* film grain overlay */
+  body::after{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;z-index:9999;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:grain 6s steps(8) infinite;
+  }
+  @keyframes grain{
+    0%,100%{transform:translate(0,0)}
+    10%{transform:translate(-3%,-2%)}
+    30%{transform:translate(2%,-4%)}
+    50%{transform:translate(-2%,3%)}
+    70%{transform:translate(3%,2%)}
+    90%{transform:translate(-3%,-1%)}
+  }
+  /* vignette */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;z-index:9998;
+    box-shadow:inset 0 0 28vw 9vw rgba(0,0,0,.85);
+  }
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+
+  /* ===== NAV ===== */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 36px;
+    background:linear-gradient(180deg,rgba(7,5,6,.95),transparent);
+    transition:background .4s, padding .4s;
+  }
+  nav.solid{background:rgba(7,5,6,.96);padding:12px 36px;border-bottom:1px solid var(--line)}
+  .logo{
+    font-family:'Unbounded',sans-serif;font-weight:900;
+    font-size:1.05rem;letter-spacing:.04em;
+    display:flex;align-items:center;gap:9px;
+  }
+  .logo .dot{width:9px;height:9px;background:var(--blood-bright);border-radius:50%;
+    box-shadow:0 0 12px var(--blood-bright);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  .nav-links{display:flex;gap:32px;align-items:center}
+  .nav-links a{
+    color:var(--ink-dim);text-decoration:none;font-size:.82rem;
+    text-transform:uppercase;letter-spacing:.16em;transition:color .25s;position:relative;
+  }
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:1px;
+    background:var(--blood-bright);transition:width .3s}
+  .nav-links a:hover::after{width:100%}
+  .nav-cta{
+    background:var(--blood);color:#fff;padding:11px 22px;
+    font-family:'Oswald';font-weight:600;font-size:.78rem;
+    text-transform:uppercase;letter-spacing:.14em;border:none;cursor:pointer;
+    text-decoration:none;transition:all .25s;
+    clip-path:polygon(0 0,100% 0,96% 100%,4% 100%);
+  }
+  .nav-cta:hover{background:var(--blood-bright);box-shadow:0 0 22px rgba(225,26,34,.6)}
+  .burger{display:none;background:none;border:none;color:var(--ink);font-size:1.6rem;cursor:pointer}
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;min-height:100vh;
+    display:flex;align-items:center;
+    overflow:hidden;
+  }
+  .hero-bg{
+    position:absolute;inset:0;z-index:0;
+    background:
+      radial-gradient(circle at 24% 42%,rgba(120,10,14,.32),transparent 46%),
+      radial-gradient(circle at 80% 70%,rgba(40,5,8,.5),transparent 55%),
+      linear-gradient(180deg,#0a0607,#070506 70%,#040303);
+  }
+  .hero-bg::after{
+    content:"";position:absolute;inset:0;
+    background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px 4px);
+    opacity:.35;mix-blend-mode:multiply;
+  }
+  .smoke{position:absolute;border-radius:50%;filter:blur(70px);opacity:.4;z-index:0}
+  .smoke.a{width:520px;height:520px;background:rgba(140,12,16,.3);top:-120px;left:-80px;animation:drift 22s ease-in-out infinite}
+  .smoke.b{width:640px;height:640px;background:rgba(60,8,10,.4);bottom:-200px;right:-160px;animation:drift 28s ease-in-out infinite reverse}
+  @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,-40px) scale(1.15)}}
+
+  .hero-inner{position:relative;z-index:2;width:100%;padding-top:80px}
+  .badge-18{
+    display:inline-flex;align-items:center;gap:14px;margin-bottom:34px;
+    opacity:0;animation:fadeUp .9s .2s forwards;
+  }
+  .badge-18 .ring{
+    width:54px;height:54px;border:2px solid var(--blood-bright);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Unbounded';font-weight:800;font-size:.95rem;color:var(--blood-bright);
+    box-shadow:0 0 18px rgba(225,26,34,.35);
+  }
+  .badge-18 span{font-family:'Special Elite';font-size:.74rem;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--ink-dim);line-height:1.5}
+
+  .kicker{
+    font-family:'Special Elite';font-size:.9rem;letter-spacing:.42em;
+    text-transform:uppercase;color:var(--ink-dim);margin-bottom:18px;
+    opacity:0;animation:fadeUp .9s .35s forwards;
+  }
+  h1.title{
+    font-family:'Unbounded',sans-serif;font-weight:900;
+    font-size:clamp(3.2rem,9.5vw,9rem);line-height:.92;
+    letter-spacing:-.02em;text-transform:uppercase;
+    margin-bottom:26px;
+  }
+  h1.title .l1{display:block;color:var(--bone);
+    text-shadow:0 0 30px rgba(0,0,0,.9);
+    opacity:0;animation:fadeUp 1s .5s forwards}
+  h1.title .l2{display:block;color:var(--blood-bright);
+    text-shadow:0 0 36px rgba(225,26,34,.5);position:relative;
+    opacity:0;animation:fadeUp 1s .68s forwards}
+  .glitch{position:relative}
+  .glitch::before,.glitch::after{
+    content:attr(data-t);position:absolute;left:0;top:0;
+    width:100%;overflow:hidden;
+  }
+  .glitch::before{color:#1ad1d1;animation:gl1 4.5s infinite;clip-path:inset(0 0 62% 0)}
+  .glitch::after{color:var(--blood-bright);animation:gl2 4.5s infinite;clip-path:inset(58% 0 0 0)}
+  @keyframes gl1{0%,92%,100%{transform:translate(0)}93%{transform:translate(-4px,2px)}96%{transform:translate(3px,-1px)}}
+  @keyframes gl2{0%,92%,100%{transform:translate(0)}94%{transform:translate(4px,-2px)}97%{transform:translate(-3px,1px)}}
+
+  .hero-sub{
+    font-size:clamp(1rem,2.1vw,1.4rem);letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-dim);max-width:640px;
+    margin-bottom:42px;
+    opacity:0;animation:fadeUp 1s .85s forwards;
+  }
+  .hero-sub b{color:var(--blood-bright);font-weight:600}
+  .hero-actions{display:flex;gap:18px;flex-wrap:wrap;
+    opacity:0;animation:fadeUp 1s 1s forwards}
+  .btn-primary{
+    background:var(--blood);color:#fff;border:none;cursor:pointer;
+    font-family:'Oswald';font-weight:600;font-size:.95rem;
+    padding:18px 42px;text-transform:uppercase;letter-spacing:.16em;
+    text-decoration:none;display:inline-flex;align-items:center;gap:12px;
+    clip-path:polygon(0 0,100% 0,95% 100%,5% 100%);
+    transition:all .3s;position:relative;overflow:hidden;
+  }
+  .btn-primary::before{content:"";position:absolute;inset:0;
+    background:var(--blood-bright);transform:translateX(-101%);transition:transform .35s}
+  .btn-primary:hover::before{transform:translateX(0)}
+  .btn-primary span{position:relative;z-index:1}
+  .btn-primary:hover{box-shadow:0 0 30px rgba(225,26,34,.55)}
+  .btn-ghost{
+    background:transparent;color:var(--ink);border:1px solid rgba(216,207,194,.3);
+    font-family:'Oswald';font-weight:500;font-size:.95rem;cursor:pointer;
+    padding:18px 38px;text-transform:uppercase;letter-spacing:.16em;
+    text-decoration:none;transition:all .3s;
+  }
+  .btn-ghost:hover{border-color:var(--blood-bright);color:var(--blood-bright)}
+
+  .scroll-hint{
+    position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+    z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;
+    color:var(--ink-dim);font-family:'Special Elite';font-size:.7rem;
+    letter-spacing:.3em;text-transform:uppercase;
+    opacity:0;animation:fadeUp 1s 1.3s forwards;
+  }
+  .scroll-hint .bar{width:1px;height:46px;background:linear-gradient(var(--blood-bright),transparent);
+    animation:scrolly 2s infinite}
+  @keyframes scrolly{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}
+    50.1%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== MARQUEE ===== */
+  .marquee{
+    background:var(--blood-deep);border-block:1px solid rgba(225,26,34,.3);
+    overflow:hidden;padding:14px 0;white-space:nowrap;
+  }
+  .marquee-track{display:inline-block;animation:scroll-x 26s linear infinite}
+  .marquee-track span{
+    font-family:'Unbounded';font-weight:800;font-size:1.1rem;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--bone);
+    padding:0 36px;
+  }
+  .marquee-track span::after{content:"☠";color:var(--blood-bright);margin-left:36px}
+  @keyframes scroll-x{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ===== SECTION SHARED ===== */
+  section.block{padding:120px 0;position:relative}
+  .sec-head{margin-bottom:64px}
+  .sec-tag{
+    font-family:'Special Elite';font-size:.8rem;letter-spacing:.36em;
+    text-transform:uppercase;color:var(--blood-bright);
+    display:flex;align-items:center;gap:14px;margin-bottom:18px;
+  }
+  .sec-tag::before{content:"";width:42px;height:1px;background:var(--blood-bright)}
+  .sec-title{
+    font-family:'Unbounded';font-weight:800;
+    font-size:clamp(2.2rem,5.5vw,4.4rem);line-height:1;
+    text-transform:uppercase;letter-spacing:-.01em;color:var(--bone);
+  }
+  .reveal{opacity:0;transform:translateY(46px);
+    transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ===== FEATURES ===== */
+  .feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
+    background:var(--line);border:1px solid var(--line)}
+  .feat{
+    background:var(--bg-2);padding:42px 30px;position:relative;
+    transition:background .35s;
+  }
+  .feat:hover{background:#120a0b}
+  .feat .ic{width:58px;height:58px;margin-bottom:24px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(225,26,34,.35);border-radius:50%;
+    color:var(--blood-bright);transition:all .35s}
+  .feat:hover .ic{background:var(--blood);color:#fff;border-color:var(--blood);
+    box-shadow:0 0 22px rgba(225,26,34,.5);transform:rotate(-8deg) scale(1.06)}
+  .feat .ic svg{width:26px;height:26px}
+  .feat h3{font-family:'Unbounded';font-weight:700;font-size:1.05rem;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--blood-bright);margin-bottom:12px}
+  .feat p{font-size:.92rem;color:var(--ink-dim);line-height:1.6}
+  .feat .num{position:absolute;top:18px;right:22px;
+    font-family:'Unbounded';font-weight:900;font-size:2.4rem;
+    color:rgba(255,255,255,.025)}
+
+  /* ===== ROOMS ===== */
+  #rooms{background:linear-gradient(180deg,#070506,#0a0607,#070506)}
+  .rooms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .room{
+    position:relative;min-height:380px;overflow:hidden;
+    border:1px solid var(--line);cursor:pointer;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:38px;transition:transform .5s cubic-bezier(.16,1,.3,1);
+  }
+  .room:hover{transform:translateY(-8px)}
+  .room-bg{position:absolute;inset:0;z-index:0;transition:transform .8s,filter .5s}
+  .room:hover .room-bg{transform:scale(1.08);filter:saturate(1.3)}
+  .room::after{content:"";position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg,rgba(7,5,6,.2) 0%,rgba(7,5,6,.55) 50%,rgba(7,5,6,.95) 100%)}
+  .room:hover::after{background:linear-gradient(180deg,rgba(120,10,14,.25) 0%,rgba(7,5,6,.6) 55%,rgba(7,5,6,.96) 100%)}
+  .room-content{position:relative;z-index:2}
+  .room-num{font-family:'Special Elite';font-size:.78rem;letter-spacing:.3em;
+    color:var(--ink-dim);margin-bottom:14px}
+  .room h3{font-family:'Unbounded';font-weight:900;
+    font-size:clamp(1.8rem,3.5vw,2.8rem);text-transform:uppercase;
+    line-height:.95;color:var(--bone);margin-bottom:18px;
+    text-shadow:0 4px 24px rgba(0,0,0,.8)}
+  .room:hover h3{color:#fff}
+  .room-meta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .difficulty{
+    font-family:'Oswald';font-weight:600;font-size:.78rem;
+    text-transform:uppercase;letter-spacing:.18em;
+    padding:7px 16px;border:1px solid currentColor;
+  }
+  .d-easy{color:#6fae5a}
+  .d-mid{color:#d6a93b}
+  .d-hard{color:#d9622b}
+  .d-extreme{color:var(--blood-bright);
+    box-shadow:0 0 16px rgba(225,26,34,.4);background:rgba(225,26,34,.08)}
+  .room-arrow{margin-left:auto;color:var(--ink-dim);
+    transition:transform .35s,color .35s;font-size:1.4rem}
+  .room:hover .room-arrow{transform:translateX(8px);color:var(--blood-bright)}
+
+  /* room scene backgrounds — pure CSS */
+  .scene-asylum{background:
+    radial-gradient(ellipse at 50% 24%,rgba(210,200,170,.22),transparent 38%),
+    repeating-linear-gradient(90deg,#0d0c0d 0 7px,#0a090a 7px 14px),
+    linear-gradient(180deg,#13110f,#080706)}
+  .scene-cabin{background:
+    radial-gradient(circle at 50% 56%,rgba(190,120,40,.3),transparent 30%),
+    linear-gradient(180deg,#0c1014 0%,#0a0c0e 45%,#060505 100%),
+    repeating-linear-gradient(86deg,rgba(20,30,25,.4) 0 16px,transparent 16px 34px)}
+  .scene-cult{background:
+    radial-gradient(circle at 50% 60%,rgba(225,26,34,.34),transparent 34%),
+    radial-gradient(circle at 50% 30%,rgba(180,90,20,.22),transparent 26%),
+    linear-gradient(180deg,#120708,#0a0405 70%,#050202)}
+  .scene-morgue{background:
+    linear-gradient(180deg,#0e0f11 0%,#0a0b0c 50%,#060606 100%),
+    repeating-linear-gradient(0deg,rgba(120,130,140,.06) 0 1px,transparent 1px 26px),
+    radial-gradient(ellipse at 50% 70%,rgba(150,12,16,.3),transparent 40%)}
+
+  /* ===== STORY STRIP ===== */
+  .story{position:relative;padding:140px 0;text-align:center;overflow:hidden}
+  .story-bg{position:absolute;inset:0;z-index:0;
+    background:radial-gradient(circle at 50% 50%,rgba(120,10,14,.28),transparent 60%),#060404}
+  .story h2{position:relative;z-index:2;font-family:'Unbounded';font-weight:900;
+    font-size:clamp(2rem,6vw,5rem);text-transform:uppercase;line-height:1.05;
+    color:var(--bone);max-width:1000px;margin:0 auto}
+  .story h2 em{color:var(--blood-bright);font-style:normal;
+    text-shadow:0 0 40px rgba(225,26,34,.5)}
+  .story p{position:relative;z-index:2;margin-top:30px;
+    font-family:'Special Elite';color:var(--ink-dim);
+    letter-spacing:.24em;text-transform:uppercase;font-size:.9rem}
+
+  /* ===== BOOKING ===== */
+  #book{background:#0a0607;position:relative}
+  .book-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center}
+  .book-left h2{font-family:'Unbounded';font-weight:900;
+    font-size:clamp(2.4rem,6vw,5rem);line-height:.96;text-transform:uppercase;
+    color:var(--bone);margin-bottom:22px}
+  .book-left h2 em{color:var(--blood-bright);font-style:normal}
+  .book-left p{font-family:'Special Elite';font-size:1rem;color:var(--ink-dim);
+    letter-spacing:.16em;text-transform:uppercase;max-width:440px;margin-bottom:40px;line-height:1.7}
+  .info-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line)}
+  .info-row{background:var(--bg-2);display:flex;align-items:center;gap:20px;padding:22px 26px}
+  .info-row .ico{width:44px;height:44px;flex-shrink:0;color:var(--blood-bright);
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(225,26,34,.3);border-radius:50%}
+  .info-row .ico svg{width:20px;height:20px}
+  .info-row .lbl{font-family:'Special Elite';font-size:.72rem;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--ink-dim);margin-bottom:4px}
+  .info-row .val{font-family:'Oswald';font-weight:600;font-size:1.05rem;color:var(--ink)}
+
+  .book-card{
+    background:linear-gradient(160deg,#1a0c0d,#0c0708);
+    border:1px solid rgba(225,26,34,.3);padding:48px;position:relative;
+    clip-path:polygon(0 0,100% 0,100% 92%,94% 100%,0 100%);
+  }
+  .book-card::before{content:"";position:absolute;top:0;left:0;width:5px;height:100%;
+    background:var(--blood-bright);box-shadow:0 0 22px rgba(225,26,34,.6)}
+  .book-card .cardtag{font-family:'Special Elite';font-size:.78rem;
+    letter-spacing:.3em;text-transform:uppercase;color:var(--blood-bright);margin-bottom:10px}
+  .book-card h3{font-family:'Unbounded';font-weight:900;font-size:2rem;
+    text-transform:uppercase;color:var(--bone);margin-bottom:30px;line-height:1}
+  .field{margin-bottom:20px}
+  .field label{display:block;font-family:'Special Elite';font-size:.72rem;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px}
+  .field input,.field select{
+    width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(216,207,194,.18);
+    color:var(--ink);padding:14px 16px;font-family:'Oswald';font-size:1rem;
+    outline:none;transition:border-color .25s,box-shadow .25s}
+  .field input:focus,.field select:focus{border-color:var(--blood-bright);
+    box-shadow:0 0 0 3px rgba(225,26,34,.15)}
+  .field input::placeholder{color:#5a5452}
+  .book-card button{
+    width:100%;background:var(--blood);color:#fff;border:none;cursor:pointer;
+    font-family:'Unbounded';font-weight:800;font-size:1rem;
+    padding:18px;text-transform:uppercase;letter-spacing:.1em;margin-top:8px;
+    transition:all .3s;position:relative;overflow:hidden}
+  .book-card button:hover{background:var(--blood-bright);
+    box-shadow:0 0 34px rgba(225,26,34,.6);letter-spacing:.18em}
+  .form-note{margin-top:16px;font-size:.78rem;color:var(--ink-dim);text-align:center}
+
+  /* ===== FAQ ===== */
+  .faq-list{max-width:880px;margin:0 auto;border-top:1px solid var(--line)}
+  .faq-item{border-bottom:1px solid var(--line)}
+  .faq-q{width:100%;background:none;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+    padding:28px 8px;text-align:left;color:var(--ink);
+    font-family:'Oswald';font-weight:600;font-size:1.15rem;
+    text-transform:uppercase;letter-spacing:.04em;transition:color .25s}
+  .faq-q:hover{color:var(--blood-bright)}
+  .faq-q .sign{font-family:'Unbounded';color:var(--blood-bright);font-size:1.4rem;
+    flex-shrink:0;transition:transform .35s}
+  .faq-item.open .faq-q .sign{transform:rotate(45deg)}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .faq-a p{padding:0 8px 28px;color:var(--ink-dim);font-size:1rem;line-height:1.7;max-width:760px}
+
+  /* ===== FOOTER ===== */
+  footer{background:#040303;border-top:1px solid var(--line);padding:70px 0 40px}
+  .foot-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:40px;margin-bottom:50px}
+  .foot-brand{font-family:'Unbounded';font-weight:900;font-size:1.6rem;
+    text-transform:uppercase;color:var(--bone);margin-bottom:14px;line-height:1}
+  .foot-brand em{color:var(--blood-bright);font-style:normal}
+  .foot-brand+p{font-family:'Special Elite';color:var(--ink-dim);
+    letter-spacing:.2em;text-transform:uppercase;font-size:.78rem}
+  .foot-col h4{font-family:'Oswald';font-weight:600;font-size:.82rem;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--blood-bright);margin-bottom:18px}
+  .foot-col a,.foot-col p{display:block;color:var(--ink-dim);text-decoration:none;
+    font-size:.94rem;margin-bottom:10px;transition:color .25s}
+  .foot-col a:hover{color:var(--ink)}
+  .foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    padding-top:30px;border-top:1px solid var(--line);
+    font-size:.78rem;color:#5a5452;letter-spacing:.1em;text-transform:uppercase}
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:1024px){
+    .feat-grid{grid-template-columns:repeat(2,1fr)}
+    .book-grid{grid-template-columns:1fr;gap:48px}
+  }
+  @media(max-width:760px){
+    .wrap{padding:0 20px}
+    nav{padding:14px 20px}
+    .nav-links{position:fixed;inset:0;background:rgba(7,5,6,.99);
+      flex-direction:column;justify-content:center;gap:40px;
+      transform:translateX(100%);transition:transform .4s;z-index:999}
+    .nav-links.open{transform:translateX(0)}
+    .nav-links a{font-size:1.2rem}
+    .burger{display:block;z-index:1001}
+    .rooms-grid{grid-template-columns:1fr}
+    .feat-grid{grid-template-columns:1fr}
+    section.block{padding:80px 0}
+    .room{min-height:300px;padding:28px}
+    .book-card{padding:32px}
+    .hero-actions{flex-direction:column}
+    .btn-primary,.btn-ghost{justify-content:center;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="logo"><span class="dot"></span>СТРАХ<em style="color:var(--blood-bright);font-style:normal">.</em>QUEST</div>
+  <div class="nav-links" id="navlinks">
+    <a href="#features">Чому ми</a>
+    <a href="#rooms">Кімнати</a>
+    <a href="#book">Бронювання</a>
+    <a href="#faq">Питання</a>
+    <a href="#book" class="nav-cta">Забронювати</a>
+  </div>
+  <button class="burger" id="burger">☰</button>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-bg"></div>
+  <div class="smoke a"></div>
+  <div class="smoke b"></div>
+  <div class="wrap hero-inner">
+    <div class="badge-18">
+      <div class="ring">18+</div>
+      <span>Не для слабких<br>нервів</span>
+    </div>
+    <div class="kicker">Ти готовий?</div>
+    <h1 class="title">
+      <span class="l1">Страх —</span>
+      <span class="l1">це лише</span>
+      <span class="l2 glitch" data-t="ПОЧАТОК">ПОЧАТОК</span>
+    </h1>
+    <p class="hero-sub">Відчуй справжній <b>хорор</b> на власній шкірі. Збери свою команду — якщо наважишся.</p>
+    <div class="hero-actions">
+      <a href="#book" class="btn-primary"><span>Забронювати зараз →</span></a>
+      <a href="#rooms" class="btn-ghost">Обери свій кошмар</a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Спускайся</span>
+    <div class="bar"></div>
+  </div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>100% адреналін</span><span>Імерсивний світ</span><span>Живий страх</span>
+    <span>Виходу немає</span><span>Справжні емоції</span>
+    <span>100% адреналін</span><span>Імерсивний світ</span><span>Живий страх</span>
+    <span>Виходу немає</span><span>Справжні емоції</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Що на тебе чекає</div>
+      <h2 class="sec-title">Це не гра.<br>Це переживання.</h2>
+    </div>
+    <div class="feat-grid reveal">
+      <div class="feat">
+        <span class="num">01</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4 1.5 6h11C19 13 20.5 11.5 20.5 9A7 7 0 0 0 12 2Z"/><path d="M8 21h8M9 18v3M15 18v3"/><circle cx="9.5" cy="9" r="1.2" fill="currentColor"/><circle cx="14.5" cy="9" r="1.2" fill="currentColor"/></svg></div>
+        <h3>100% адреналін</h3>
+        <p>Непередбачуваний сюжет та реалістична атмосфера тримають у напрузі до останньої секунди.</p>
+      </div>
+      <div class="feat">
+        <span class="num">02</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11V5a1.5 1.5 0 0 1 3 0v5M12 10V4a1.5 1.5 0 0 1 3 0v6M15 11V6a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7 7 7 0 0 1-5-2l-3.5-4a1.6 1.6 0 0 1 2.4-2.1L9 16V6a1.5 1.5 0 0 1 3 0"/></svg></div>
+        <h3>Імерсивний світ</h3>
+        <p>Повне занурення у темряву та жах. Декорації, звук і запах — усе працює проти тебе.</p>
+      </div>
+      <div class="feat">
+        <span class="num">03</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4c5 0 9 4.5 10 8-1 3.5-5 8-10 8S3 15.5 2 12c1-3.5 5-8 10-8Z"/><circle cx="12" cy="12" r="3.4"/></svg></div>
+        <h3>Професійні актори</h3>
+        <p>Живий страх і справжні емоції. За тобою стежать ті, від кого не сховатися.</p>
+      </div>
+      <div class="feat">
+        <span class="num">04</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.4" fill="currentColor"/></svg></div>
+        <h3>Кімнати на вибір</h3>
+        <p>Різні рівні складності для сміливих. Від першого випробування до екстриму.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROOMS -->
+<section class="block" id="rooms">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Обери свій кошмар</div>
+      <h2 class="sec-title">Чотири історії.<br>Жоден вихід не легкий.</h2>
+    </div>
+    <div class="rooms-grid">
+      <div class="room reveal">
+        <div class="room-bg scene-asylum"></div>
+        <div class="room-content">
+          <div class="room-num">№ 01 · ~60 ХВ</div>
+          <h3>Психлікарня</h3>
+          <div class="room-meta">
+            <span class="difficulty d-easy">Рівень: легкий</span>
+            <span style="color:var(--ink-dim);font-size:.85rem">Покинуті палати пам'ятають кожен крик</span>
+            <span class="room-arrow">→</span>
+          </div>
+        </div>
+      </div>
+      <div class="room reveal">
+        <div class="room-bg scene-cabin"></div>
+        <div class="room-content">
+          <div class="room-num">№ 02 · ~60 ХВ</div>
+          <h3>Будинок у лісі</h3>
+          <div class="room-meta">
+            <span class="difficulty d-mid">Рівень: середній</span>
+            <span style="color:var(--ink-dim);font-size:.85rem">Світло у вікні — це не порятунок</span>
+            <span class="room-arrow">→</span>
+          </div>
+        </div>
+      </div>
+      <div class="room reveal">
+        <div class="room-bg scene-cult"></div>
+        <div class="room-content">
+          <div class="room-num">№ 03 · ~70 ХВ</div>
+          <h3>Культ</h3>
+          <div class="room-meta">
+            <span class="difficulty d-hard">Рівень: важкий</span>
+            <span style="color:var(--ink-dim);font-size:.85rem">Ритуал вже почався. Ти — частина його</span>
+            <span class="room-arrow">→</span>
+          </div>
+        </div>
+      </div>
+      <div class="room reveal">
+        <div class="room-bg scene-morgue"></div>
+        <div class="room-content">
+          <div class="room-num">№ 04 · ~70 ХВ</div>
+          <h3>Морг</h3>
+          <div class="room-meta">
+            <span class="difficulty d-extreme">Рівень: екстрим</span>
+            <span style="color:var(--ink-dim);font-size:.85rem">Не всі тіла тут мертві</span>
+            <span class="room-arrow">→</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY STRIP -->
+<section class="story">
+  <div class="story-bg"></div>
+  <h2>Забронюй зараз і переживи те, <em>про що інші лише чули</em></h2>
+  <p>Виходу — немає</p>
+</section>
+
+<!-- BOOKING -->
+<section class="block" id="book">
+  <div class="wrap">
+    <div class="book-grid">
+      <div class="book-left reveal">
+        <div class="sec-tag">Бронювання</div>
+        <h2>Готовий зустрітись<br>зі своїм <em>страхом?</em></h2>
+        <p>Збери команду від 2 до 6 гравців. Залиш заявку — ми передзвонимо й підтвердимо твій сеанс.</p>
+        <div class="info-list">
+          <div class="info-row">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+            <div><div class="lbl">Адреса</div><div class="val">вул. Темна, 13</div></div>
+          </div>
+          <div class="info-row">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg></div>
+            <div><div class="lbl">Бронювання</div><div class="val">Щодня · 10:00 – 22:00</div></div>
+          </div>
+          <div class="info-row">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 20c0-2.4 1-4.4 2.6-5.4"/></svg></div>
+            <div><div class="lbl">Гравці</div><div class="val">2–6 осіб · від 16 років</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="book-card reveal">
+        <div class="cardtag">Заброньовано назад дороги немає</div>
+        <h3>Залиш заявку</h3>
+        <div class="field">
+          <label>Твоє ім'я</label>
+          <input type="text" id="f-name" placeholder="Як до тебе звертатись">
+        </div>
+        <div class="field">
+          <label>Телефон</label>
+          <input type="tel" id="f-phone" placeholder="+380 __ ___ __ __">
+        </div>
+        <div class="field">
+          <label>Оберіть кімнату</label>
+          <select id="f-room">
+            <option>Психлікарня — легкий</option>
+            <option>Будинок у лісі — середній</option>
+            <option>Культ — важкий</option>
+            <option>Морг — екстрим</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Кількість гравців</label>
+          <select id="f-count">
+            <option>2 гравці</option><option>3 гравці</option><option>4 гравці</option>
+            <option>5 гравців</option><option>6 гравців</option>
+          </select>
+        </div>
+        <button id="submitBtn">Заброньувати сеанс</button>
+        <p class="form-note">Натискаючи кнопку, ти підтверджуєш, що тобі є 16 років.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="block" id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal" style="text-align:center">
+      <div class="sec-tag" style="justify-content:center">Перед тим як зайти</div>
+      <h2 class="sec-title">Часті питання</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-q">Наскільки це страшно насправді? <span class="sign">+</span></button>
+        <div class="faq-a"><p>Дуже. Це не атракціон з картонними монстрами — живі актори, повна темрява, фізичний контакт і непередбачуваний сценарій. Якщо ти прийшов «просто подивитись» — ти прийшов не туди.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Актори можуть мене торкатись? <span class="sign">+</span></button>
+        <div class="faq-a"><p>Так, у наших квестах передбачено контакт з акторами. Це частина імерсивного досвіду. Жодних травм — лише страх, від якого мурашки по шкірі.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Скільки людей потрібно для команди? <span class="sign">+</span></button>
+        <div class="faq-a"><p>Від 2 до 6 гравців. Оптимально 3–4 — достатньо, щоб не залишитись на самоті, але кожному вистачить власної дози жаху.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Є вікові обмеження? <span class="sign">+</span></button>
+        <div class="faq-a"><p>Так. Допуск з 16 років, а рекомендований вік — 18+. Контент не призначений для людей зі слабкими нервами, вагітних та осіб із серцевими захворюваннями.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Чи можна вийти посеред квесту? <span class="sign">+</span></button>
+        <div class="faq-a"><p>Звісно. Безпека — понад усе. Існує стоп-слово, після якого актори миттєво вийдуть з образу, і ми виведемо тебе. Але майже ніхто його не використовує. Майже.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <div class="foot-brand">Страх<em>.</em>Quest</div>
+        <p>Виходу немає</p>
+      </div>
+      <div class="foot-col">
+        <h4>Навігація</h4>
+        <a href="#features">Чому ми</a>
+        <a href="#rooms">Кімнати</a>
+        <a href="#book">Бронювання</a>
+        <a href="#faq">Питання</a>
+      </div>
+      <div class="foot-col">
+        <h4>Контакти</h4>
+        <p>вул. Темна, 13</p>
+        <p>Щодня 10:00 – 22:00</p>
+        <a href="tel:+380000000000">+380 00 000 00 00</a>
+      </div>
+      <div class="foot-col">
+        <h4>Соцмережі</h4>
+        <a href="#">Instagram</a>
+        <a href="#">Telegram</a>
+        <a href="#">TikTok</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Страх.Quest · Усі права застережено</span>
+      <span>18+ · Не для слабких нервів</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // nav scroll state
+  const nav=document.getElementById('nav');
+  addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>60));
+
+  // mobile menu
+  const burger=document.getElementById('burger'),links=document.getElementById('navlinks');
+  burger.addEventListener('click',()=>{
+    links.classList.toggle('open');
+    burger.textContent=links.classList.contains('open')?'✕':'☰';
+  });
+  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+    links.classList.remove('open');burger.textContent='☰';
+  }));
+
+  // scroll reveal
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.16});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // faq accordion
+  document.querySelectorAll('.faq-q').forEach(q=>{
+    q.addEventListener('click',()=>{
+      const item=q.parentElement,a=item.querySelector('.faq-a'),wasOpen=item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>{
+        i.classList.remove('open');i.querySelector('.faq-a').style.maxHeight=null;
+      });
+      if(!wasOpen){item.classList.add('open');a.style.maxHeight=a.scrollHeight+'px'}
+    });
+  });
+
+  // booking form
+  document.getElementById('submitBtn').addEventListener('click',()=>{
+    const n=document.getElementById('f-name').value.trim();
+    const p=document.getElementById('f-phone').value.trim();
+    const btn=document.getElementById('submitBtn');
+    if(!n||!p){
+      btn.textContent='Заповни ім\'я та телефон';
+      btn.style.background='#5c0a0d';
+      setTimeout(()=>{btn.textContent='Заброньувати сеанс';btn.style.background='';},2200);
+      return;
+    }
+    const room=document.getElementById('f-room').value;
+    btn.textContent='✓ Заявку прийнято — чекай на дзвінок';
+    btn.style.background='#3a6b2c';
+    btn.disabled=true;
+  });
+</script>
+</body>
+</html>
