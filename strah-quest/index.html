@@ -36,9 +36,9 @@
     content:"";
     position:fixed;inset:0;
     pointer-events:none;z-index:9999;
-    opacity:.05;mix-blend-mode:overlay;
+    opacity:.085;mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-    animation:grain 6s steps(8) infinite;
+    animation:grain 5s steps(7) infinite;
   }
   @keyframes grain{
     0%,100%{transform:translate(0,0)}
@@ -48,12 +48,21 @@
     70%{transform:translate(3%,2%)}
     90%{transform:translate(-3%,-1%)}
   }
-  /* vignette */
+  /* vignette + blood edges */
   body::before{
     content:"";
     position:fixed;inset:0;
     pointer-events:none;z-index:9998;
-    box-shadow:inset 0 0 28vw 9vw rgba(0,0,0,.85);
+    box-shadow:inset 0 0 30vw 11vw rgba(0,0,0,.9);
+    background:
+      radial-gradient(circle at 0% 0%,rgba(120,8,12,.18),transparent 26%),
+      radial-gradient(circle at 100% 100%,rgba(120,8,12,.16),transparent 28%),
+      radial-gradient(circle at 100% 0%,rgba(70,6,9,.14),transparent 22%);
+  }
+
+  /* reusable grunge / blood texture vars */
+  .grunge-tex{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.018' numOctaves='4' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23g)' opacity='0.55'/%3E%3C/svg%3E");
   }
 
   .wrap{max-width:1280px;margin:0 auto;padding:0 28px}
@@ -69,9 +78,11 @@
   nav.solid{background:rgba(7,5,6,.96);padding:12px 36px;border-bottom:1px solid var(--line)}
   .logo{
     font-family:'Unbounded',sans-serif;font-weight:900;
-    font-size:1.05rem;letter-spacing:.04em;
+    font-size:1.05rem;letter-spacing:.04em;color:var(--ink);
     display:flex;align-items:center;gap:9px;
+    text-decoration:none;cursor:pointer;transition:opacity .25s;
   }
+  .logo:hover{opacity:.75}
   .logo .dot{width:9px;height:9px;background:var(--blood-bright);border-radius:50%;
     box-shadow:0 0 12px var(--blood-bright);animation:pulse 1.6s infinite}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
@@ -153,8 +164,8 @@
     content:attr(data-t);position:absolute;left:0;top:0;
     width:100%;overflow:hidden;
   }
-  .glitch::before{color:#1ad1d1;animation:gl1 4.5s infinite;clip-path:inset(0 0 62% 0)}
-  .glitch::after{color:var(--blood-bright);animation:gl2 4.5s infinite;clip-path:inset(58% 0 0 0)}
+  .glitch::before{color:var(--blood-deep);animation:gl1 4.5s infinite;clip-path:inset(0 0 62% 0);opacity:.85}
+  .glitch::after{color:#ff3b41;animation:gl2 4.5s infinite;clip-path:inset(58% 0 0 0);opacity:.7}
   @keyframes gl1{0%,92%,100%{transform:translate(0)}93%{transform:translate(-4px,2px)}96%{transform:translate(3px,-1px)}}
   @keyframes gl2{0%,92%,100%{transform:translate(0)}94%{transform:translate(4px,-2px)}97%{transform:translate(-3px,1px)}}
 
@@ -165,6 +176,17 @@
     opacity:0;animation:fadeUp 1s .85s forwards;
   }
   .hero-sub b{color:var(--blood-bright);font-weight:600}
+  .team-banner{
+    display:inline-block;margin-bottom:42px;
+    background:var(--bone);color:#15100f;
+    font-family:'Unbounded';font-weight:800;font-size:clamp(1rem,2vw,1.5rem);
+    text-transform:uppercase;letter-spacing:.02em;
+    padding:14px 34px;transform:rotate(-1.6deg);
+    clip-path:polygon(2% 8%,98% 0,100% 90%,1% 100%);
+    box-shadow:0 8px 30px rgba(0,0,0,.6);
+    opacity:0;animation:fadeUp 1s .92s forwards;
+  }
+  .team-banner em{color:var(--blood);font-style:normal}
   .hero-actions{display:flex;gap:18px;flex-wrap:wrap;
     opacity:0;animation:fadeUp 1s 1s forwards}
   .btn-primary{
@@ -204,31 +226,75 @@
 
   /* ===== MARQUEE ===== */
   .marquee{
-    background:var(--blood-deep);border-block:1px solid rgba(225,26,34,.3);
-    overflow:hidden;padding:14px 0;white-space:nowrap;
+    position:relative;
+    background:linear-gradient(180deg,#6e0a0e,#3e0608);
+    overflow:hidden;padding:18px 0;white-space:nowrap;
   }
+  .marquee::before,.marquee::after{
+    content:"";position:absolute;left:0;right:0;height:14px;z-index:2;
+    background:var(--bg);
+  }
+  .marquee::before{top:-7px;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='14'%3E%3Cpath d='M0 0 L120 0 L120 7 Q100 14 80 7 T40 7 T0 9 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-x bottom/120px 14px;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='14'%3E%3Cpath d='M0 0 L120 0 L120 7 Q100 14 80 7 T40 7 T0 9 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-x bottom/120px 14px}
+  .marquee::after{bottom:-7px;transform:scaleY(-1);
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='14'%3E%3Cpath d='M0 0 L120 0 L120 7 Q100 14 80 7 T40 7 T0 9 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-x bottom/120px 14px;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='14'%3E%3Cpath d='M0 0 L120 0 L120 7 Q100 14 80 7 T40 7 T0 9 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-x bottom/120px 14px}
   .marquee-track{display:inline-block;animation:scroll-x 26s linear infinite}
   .marquee-track span{
     font-family:'Unbounded';font-weight:800;font-size:1.1rem;
     text-transform:uppercase;letter-spacing:.1em;color:var(--bone);
-    padding:0 36px;
-  }
-  .marquee-track span::after{content:"☠";color:var(--blood-bright);margin-left:36px}
+    padding:0 36px;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+  .marquee-track span::after{content:"☠";color:#15100f;margin-left:36px}
   @keyframes scroll-x{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
   /* ===== SECTION SHARED ===== */
-  section.block{padding:120px 0;position:relative}
+  section.block{padding:120px 0;position:relative;scroll-margin-top:84px}
+  /* dirty concrete texture behind every section */
+  section.block::before{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.009 0.014' numOctaves='5' seed='12'/%3E%3CfeColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.03 0 0 0 0 0.03 0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23c)'/%3E%3C/svg%3E");
+    background-size:560px;opacity:.5;mix-blend-mode:screen;
+  }
+  /* blood seep at section edges */
+  section.block::after{
+    content:"";position:absolute;left:0;right:0;top:0;height:160px;z-index:0;
+    pointer-events:none;
+    background:
+      radial-gradient(ellipse 50% 100% at 18% 0%,rgba(120,8,12,.4),transparent 70%),
+      radial-gradient(ellipse 38% 90% at 78% 0%,rgba(90,6,9,.34),transparent 72%);
+    -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='80'%3E%3Cfilter id='d'%3E%3CfeTurbulence baseFrequency='0.02 0.06' numOctaves='3' seed='4'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='40'/%3E%3C/filter%3E%3Crect width='200' height='50' fill='%23fff' filter='url(%23d)'/%3E%3C/svg%3E");
+    mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='80'%3E%3Cfilter id='d'%3E%3CfeTurbulence baseFrequency='0.02 0.06' numOctaves='3' seed='4'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='40'/%3E%3C/filter%3E%3Crect width='200' height='50' fill='%23fff' filter='url(%23d)'/%3E%3C/svg%3E");
+    -webkit-mask-size:cover;mask-size:cover;
+  }
+  section.block>.wrap{position:relative;z-index:2}
   .sec-head{margin-bottom:64px}
   .sec-tag{
-    font-family:'Special Elite';font-size:.8rem;letter-spacing:.36em;
-    text-transform:uppercase;color:var(--blood-bright);
-    display:flex;align-items:center;gap:14px;margin-bottom:18px;
+    font-family:'Special Elite';font-size:.8rem;letter-spacing:.34em;
+    text-transform:uppercase;color:#15100f;
+    display:inline-flex;align-items:center;gap:0;margin-bottom:22px;
+    background:var(--bone);padding:7px 20px 7px 16px;
+    transform:rotate(-1.2deg);position:relative;
+    clip-path:polygon(2% 12%,99% 0,100% 84%,1% 100%);
   }
-  .sec-tag::before{content:"";width:42px;height:1px;background:var(--blood-bright)}
+  .sec-tag::before{content:"";width:0;height:0;margin:0}
+  .sec-tag::after{content:"";position:absolute;right:-8px;top:50%;
+    width:14px;height:14px;background:var(--blood);border-radius:50%;
+    filter:blur(1px);opacity:.7}
   .sec-title{
     font-family:'Unbounded';font-weight:800;
     font-size:clamp(2.2rem,5.5vw,4.4rem);line-height:1;
     text-transform:uppercase;letter-spacing:-.01em;color:var(--bone);
+    position:relative;display:inline-block;
+  }
+  /* dripping blood underline on titles */
+  .sec-title::after{
+    content:"";position:absolute;left:0;bottom:-18px;width:64%;height:10px;
+    background:var(--blood);
+    -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='40'%3E%3Cpath d='M0 8 Q40 2 80 8 T160 7 T240 9 T300 6 L300 0 L0 0 Z M30 8 q-3 18 0 24 q4 -8 0 -24 M120 9 q-2 22 1 30 q4 -10 -1 -30 M210 8 q-3 16 0 22 q3 -7 0 -22' fill='%23fff'/%3E%3C/svg%3E");
+    mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='40'%3E%3Cpath d='M0 8 Q40 2 80 8 T160 7 T240 9 T300 6 L300 0 L0 0 Z M30 8 q-3 18 0 24 q4 -8 0 -24 M120 9 q-2 22 1 30 q4 -10 -1 -30 M210 8 q-3 16 0 22 q3 -7 0 -22' fill='%23fff'/%3E%3C/svg%3E");
+    -webkit-mask-size:100% 100%;mask-size:100% 100%;
+    filter:drop-shadow(0 0 6px rgba(225,26,34,.55));
   }
   .reveal{opacity:0;transform:translateY(46px);
     transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
@@ -236,28 +302,49 @@
 
   /* ===== FEATURES ===== */
   .feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
-    background:var(--line);border:1px solid var(--line)}
+    background:rgba(120,8,12,.35);border:1px solid rgba(120,8,12,.4);
+    box-shadow:0 0 50px rgba(0,0,0,.6)}
   .feat{
-    background:var(--bg-2);padding:42px 30px;position:relative;
-    transition:background .35s;
+    background:
+      radial-gradient(circle at 70% 18%,rgba(120,8,12,.16),transparent 55%),
+      linear-gradient(160deg,#15100f,#0a0708);
+    padding:42px 30px;position:relative;overflow:hidden;
+    transition:background .4s;
   }
-  .feat:hover{background:#120a0b}
+  .feat::before{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.4;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='3' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23p)'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  .feat>*{position:relative;z-index:1}
+  .feat::after{
+    content:"";position:absolute;left:-30%;top:-40%;width:80%;height:80%;
+    background:radial-gradient(circle,rgba(225,26,34,.45),transparent 65%);
+    opacity:0;transition:opacity .45s,transform .6s;transform:scale(.5);
+  }
+  .feat:hover{background:
+      radial-gradient(circle at 50% 30%,rgba(150,10,14,.3),transparent 60%),
+      linear-gradient(160deg,#1c0d0e,#0c0808)}
+  .feat:hover::after{opacity:1;transform:scale(1.2) translate(20%,15%)}
   .feat .ic{width:58px;height:58px;margin-bottom:24px;
     display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(225,26,34,.35);border-radius:50%;
+    border:1px solid rgba(225,26,34,.4);border-radius:50%;
+    background:rgba(216,207,194,.06);
     color:var(--blood-bright);transition:all .35s}
   .feat:hover .ic{background:var(--blood);color:#fff;border-color:var(--blood);
-    box-shadow:0 0 22px rgba(225,26,34,.5);transform:rotate(-8deg) scale(1.06)}
+    box-shadow:0 0 28px rgba(225,26,34,.65);transform:rotate(-8deg) scale(1.08)}
   .feat .ic svg{width:26px;height:26px}
   .feat h3{font-family:'Unbounded';font-weight:700;font-size:1.05rem;
     text-transform:uppercase;letter-spacing:.04em;color:var(--blood-bright);margin-bottom:12px}
   .feat p{font-size:.92rem;color:var(--ink-dim);line-height:1.6}
-  .feat .num{position:absolute;top:18px;right:22px;
-    font-family:'Unbounded';font-weight:900;font-size:2.4rem;
-    color:rgba(255,255,255,.025)}
+  .feat .num{position:absolute;top:18px;right:22px;z-index:1;
+    font-family:'Unbounded';font-weight:900;font-size:2.6rem;
+    color:rgba(225,26,34,.06)}
 
   /* ===== ROOMS ===== */
-  #rooms{background:linear-gradient(180deg,#070506,#0a0607,#070506)}
+  #rooms{background:
+    radial-gradient(ellipse at 50% 0%,rgba(90,6,9,.3),transparent 45%),
+    linear-gradient(180deg,#070405,#0a0607 50%,#050303)}
   .rooms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
   .room{
     position:relative;min-height:380px;overflow:hidden;
@@ -267,29 +354,48 @@
   }
   .room:hover{transform:translateY(-8px)}
   .room-bg{position:absolute;inset:0;z-index:0;transition:transform .8s,filter .5s}
-  .room:hover .room-bg{transform:scale(1.08);filter:saturate(1.3)}
+  .room:hover .room-bg{transform:scale(1.08);filter:saturate(1.4) contrast(1.1)}
+  /* grime layer on every scene */
+  .room-bg::before{
+    content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='rg'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.03' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23rg)'/%3E%3C/svg%3E");
+  }
   .room::after{content:"";position:absolute;inset:0;z-index:1;
-    background:linear-gradient(180deg,rgba(7,5,6,.2) 0%,rgba(7,5,6,.55) 50%,rgba(7,5,6,.95) 100%)}
-  .room:hover::after{background:linear-gradient(180deg,rgba(120,10,14,.25) 0%,rgba(7,5,6,.6) 55%,rgba(7,5,6,.96) 100%)}
-  .room-content{position:relative;z-index:2}
+    background:linear-gradient(180deg,rgba(7,5,6,.25) 0%,rgba(7,5,6,.6) 48%,rgba(5,3,3,.97) 100%)}
+  .room:hover::after{background:
+    radial-gradient(circle at 50% 40%,rgba(150,10,14,.35),transparent 60%),
+    linear-gradient(180deg,rgba(60,6,9,.4) 0%,rgba(7,5,6,.7) 52%,rgba(5,2,2,.98) 100%)}
+  /* torn blood frame */
+  .room::before{
+    content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+    border:2px solid transparent;
+    background:linear-gradient(var(--blood),var(--blood-deep)) border-box;
+    -webkit-mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' preserveAspectRatio='none'%3E%3Cfilter id='fr'%3E%3CfeTurbulence baseFrequency='0.04 0.08' numOctaves='3' seed='3'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='10'/%3E%3C/filter%3E%3Crect x='2' y='2' width='96' height='96' fill='none' stroke='%23fff' stroke-width='3' filter='url(%23fr)'/%3E%3C/svg%3E") center/100% 100%;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' preserveAspectRatio='none'%3E%3Cfilter id='fr'%3E%3CfeTurbulence baseFrequency='0.04 0.08' numOctaves='3' seed='3'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='10'/%3E%3C/filter%3E%3Crect x='2' y='2' width='96' height='96' fill='none' stroke='%23fff' stroke-width='3' filter='url(%23fr)'/%3E%3C/svg%3E") center/100% 100%;
+    opacity:.55;transition:opacity .4s;
+  }
+  .room:hover::before{opacity:1;filter:drop-shadow(0 0 8px rgba(225,26,34,.6))}
+  .room-content{position:relative;z-index:4}
   .room-num{font-family:'Special Elite';font-size:.78rem;letter-spacing:.3em;
     color:var(--ink-dim);margin-bottom:14px}
   .room h3{font-family:'Unbounded';font-weight:900;
     font-size:clamp(1.8rem,3.5vw,2.8rem);text-transform:uppercase;
     line-height:.95;color:var(--bone);margin-bottom:18px;
-    text-shadow:0 4px 24px rgba(0,0,0,.8)}
-  .room:hover h3{color:#fff}
+    text-shadow:0 4px 24px rgba(0,0,0,.9)}
+  .room:hover h3{color:#fff;text-shadow:0 0 26px rgba(225,26,34,.5),0 4px 24px rgba(0,0,0,.9)}
   .room-meta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
   .difficulty{
     font-family:'Oswald';font-weight:600;font-size:.78rem;
     text-transform:uppercase;letter-spacing:.18em;
     padding:7px 16px;border:1px solid currentColor;
+    background:rgba(0,0,0,.35);backdrop-filter:blur(2px);
   }
   .d-easy{color:#6fae5a}
   .d-mid{color:#d6a93b}
   .d-hard{color:#d9622b}
   .d-extreme{color:var(--blood-bright);
-    box-shadow:0 0 16px rgba(225,26,34,.4);background:rgba(225,26,34,.08)}
+    box-shadow:0 0 16px rgba(225,26,34,.45);background:rgba(225,26,34,.12)}
   .room-arrow{margin-left:auto;color:var(--ink-dim);
     transition:transform .35s,color .35s;font-size:1.4rem}
   .room:hover .room-arrow{transform:translateX(8px);color:var(--blood-bright)}
@@ -313,32 +419,62 @@
     radial-gradient(ellipse at 50% 70%,rgba(150,12,16,.3),transparent 40%)}
 
   /* ===== STORY STRIP ===== */
-  .story{position:relative;padding:140px 0;text-align:center;overflow:hidden}
+  .story{position:relative;padding:160px 0;text-align:center;overflow:hidden}
   .story-bg{position:absolute;inset:0;z-index:0;
-    background:radial-gradient(circle at 50% 50%,rgba(120,10,14,.28),transparent 60%),#060404}
+    background:radial-gradient(circle at 50% 50%,rgba(120,10,14,.34),transparent 62%),#060303}
+  /* pulsing blood heartbeat glow */
+  .story-bg::before{
+    content:"";position:absolute;left:50%;top:50%;
+    width:60vw;height:60vw;max-width:760px;max-height:760px;
+    transform:translate(-50%,-50%);border-radius:50%;
+    background:radial-gradient(circle,rgba(225,26,34,.22),transparent 62%);
+    animation:heartbeat 2.4s ease-in-out infinite;
+  }
+  @keyframes heartbeat{
+    0%,100%{transform:translate(-50%,-50%) scale(.9);opacity:.5}
+    14%{transform:translate(-50%,-50%) scale(1.06);opacity:.85}
+    28%{transform:translate(-50%,-50%) scale(.94);opacity:.6}
+    42%{transform:translate(-50%,-50%) scale(1.02);opacity:.78}
+  }
+  /* blood spatter texture */
+  .story-bg::after{
+    content:"";position:absolute;inset:0;opacity:.35;mix-blend-mode:screen;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='400'%3E%3Cfilter id='sp'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.012' numOctaves='2' seed='8'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.04 0 0 0 0 0.05 0 0 0 11 -4.5'/%3E%3C/filter%3E%3Crect width='500' height='400' filter='url(%23sp)'/%3E%3C/svg%3E");
+  }
   .story h2{position:relative;z-index:2;font-family:'Unbounded';font-weight:900;
     font-size:clamp(2rem,6vw,5rem);text-transform:uppercase;line-height:1.05;
-    color:var(--bone);max-width:1000px;margin:0 auto}
+    color:var(--bone);max-width:1000px;margin:0 auto;
+    text-shadow:0 6px 30px rgba(0,0,0,.8)}
   .story h2 em{color:var(--blood-bright);font-style:normal;
-    text-shadow:0 0 40px rgba(225,26,34,.5)}
+    text-shadow:0 0 44px rgba(225,26,34,.6)}
   .story p{position:relative;z-index:2;margin-top:30px;
     font-family:'Special Elite';color:var(--ink-dim);
     letter-spacing:.24em;text-transform:uppercase;font-size:.9rem}
 
   /* ===== BOOKING ===== */
-  #book{background:#0a0607;position:relative}
+  #book{position:relative;
+    background:
+      radial-gradient(ellipse at 80% 50%,rgba(120,8,12,.28),transparent 55%),
+      radial-gradient(circle at 12% 90%,rgba(90,6,9,.22),transparent 45%),
+      linear-gradient(180deg,#0c0708,#070405)}
   .book-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center}
   .book-left h2{font-family:'Unbounded';font-weight:900;
     font-size:clamp(2.4rem,6vw,5rem);line-height:.96;text-transform:uppercase;
     color:var(--bone);margin-bottom:22px}
-  .book-left h2 em{color:var(--blood-bright);font-style:normal}
+  .book-left h2 em{color:var(--blood-bright);font-style:normal;
+    text-shadow:0 0 36px rgba(225,26,34,.5)}
   .book-left p{font-family:'Special Elite';font-size:1rem;color:var(--ink-dim);
     letter-spacing:.16em;text-transform:uppercase;max-width:440px;margin-bottom:40px;line-height:1.7}
-  .info-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line)}
-  .info-row{background:var(--bg-2);display:flex;align-items:center;gap:20px;padding:22px 26px}
+  .info-list{display:flex;flex-direction:column;gap:1px;
+    background:rgba(120,8,12,.32);border:1px solid rgba(120,8,12,.4)}
+  .info-row{background:linear-gradient(160deg,#15100f,#0a0708);
+    display:flex;align-items:center;gap:20px;padding:22px 26px;
+    transition:background .3s}
+  .info-row:hover{background:linear-gradient(160deg,#1c0d0e,#0c0808)}
   .info-row .ico{width:44px;height:44px;flex-shrink:0;color:var(--blood-bright);
     display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(225,26,34,.3);border-radius:50%}
+    border:1px solid rgba(225,26,34,.35);border-radius:50%;
+    background:rgba(216,207,194,.05)}
   .info-row .ico svg{width:20px;height:20px}
   .info-row .lbl{font-family:'Special Elite';font-size:.72rem;letter-spacing:.24em;
     text-transform:uppercase;color:var(--ink-dim);margin-bottom:4px}
@@ -353,8 +489,10 @@
     background:var(--blood-bright);box-shadow:0 0 22px rgba(225,26,34,.6)}
   .book-card .cardtag{font-family:'Special Elite';font-size:.78rem;
     letter-spacing:.3em;text-transform:uppercase;color:var(--blood-bright);margin-bottom:10px}
-  .book-card h3{font-family:'Unbounded';font-weight:900;font-size:2rem;
-    text-transform:uppercase;color:var(--bone);margin-bottom:30px;line-height:1}
+  .book-card h3{font-family:'Unbounded';font-weight:900;font-size:2.4rem;
+    text-transform:uppercase;color:var(--bone);margin-bottom:16px;line-height:1}
+  .book-card-text{font-family:'Oswald';font-size:1.02rem;color:var(--ink-dim);
+    line-height:1.6;margin-bottom:30px}
   .field{margin-bottom:20px}
   .field label{display:block;font-family:'Special Elite';font-size:.72rem;
     letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px}
@@ -364,7 +502,12 @@
     outline:none;transition:border-color .25s,box-shadow .25s}
   .field input:focus,.field select:focus{border-color:var(--blood-bright);
     box-shadow:0 0 0 3px rgba(225,26,34,.15)}
+  .field input.invalid{border-color:var(--blood-bright);
+    box-shadow:0 0 0 3px rgba(225,26,34,.22)}
   .field input::placeholder{color:#5a5452}
+  .field .err{display:block;min-height:16px;margin-top:6px;
+    font-family:'Oswald';font-size:.78rem;color:#ff6b70;letter-spacing:.04em}
+  .field-row{display:grid;grid-template-columns:1fr .5fr;gap:16px}
   .book-card button{
     width:100%;background:var(--blood);color:#fff;border:none;cursor:pointer;
     font-family:'Unbounded';font-weight:800;font-size:1rem;
@@ -372,25 +515,78 @@
     transition:all .3s;position:relative;overflow:hidden}
   .book-card button:hover{background:var(--blood-bright);
     box-shadow:0 0 34px rgba(225,26,34,.6);letter-spacing:.18em}
-  .form-note{margin-top:16px;font-size:.78rem;color:var(--ink-dim);text-align:center}
+  .form-note{margin-top:16px;font-size:.78rem;color:var(--ink-dim);text-align:center;line-height:1.6}
 
-  /* ===== FAQ ===== */
-  .faq-list{max-width:880px;margin:0 auto;border-top:1px solid var(--line)}
-  .faq-item{border-bottom:1px solid var(--line)}
-  .faq-q{width:100%;background:none;border:none;cursor:pointer;
-    display:flex;align-items:center;justify-content:space-between;gap:24px;
-    padding:28px 8px;text-align:left;color:var(--ink);
-    font-family:'Oswald';font-weight:600;font-size:1.15rem;
-    text-transform:uppercase;letter-spacing:.04em;transition:color .25s}
-  .faq-q:hover{color:var(--blood-bright)}
-  .faq-q .sign{font-family:'Unbounded';color:var(--blood-bright);font-size:1.4rem;
-    flex-shrink:0;transition:transform .35s}
-  .faq-item.open .faq-q .sign{transform:rotate(45deg)}
-  .faq-a{max-height:0;overflow:hidden;transition:max-height .45s ease}
-  .faq-a p{padding:0 8px 28px;color:var(--ink-dim);font-size:1rem;line-height:1.7;max-width:760px}
+  /* ===== BOOKING DIALOG ===== */
+  .booking-dialog{
+    border:none;padding:0;background:transparent;color:var(--ink);
+    max-width:540px;width:92vw;margin:auto;overflow:visible;
+  }
+  .booking-dialog::backdrop{
+    background:rgba(3,2,2,.86);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  }
+  .booking-dialog[open]{animation:dlgIn .4s cubic-bezier(.16,1,.3,1)}
+  .booking-dialog[open]::backdrop{animation:bdIn .4s ease}
+  @keyframes dlgIn{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:none}}
+  @keyframes bdIn{from{opacity:0}to{opacity:1}}
+  .booking-dialog.closing{animation:dlgOut .28s ease forwards}
+  .booking-dialog.closing::backdrop{animation:bdOut .28s ease forwards}
+  @keyframes dlgOut{to{opacity:0;transform:translateY(24px) scale(.97)}}
+  @keyframes bdOut{to{opacity:0}}
+  .bd-inner{
+    position:relative;
+    background:linear-gradient(160deg,#1c0d0e,#0b0708 70%);
+    border:1px solid rgba(225,26,34,.34);
+    padding:46px 44px 40px;
+    clip-path:polygon(0 0,100% 0,100% 95%,96% 100%,0 100%);
+    box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 50px rgba(225,26,34,.12);
+  }
+  .bd-inner::before{content:"";position:absolute;top:0;left:0;width:5px;height:100%;
+    background:var(--blood-bright);box-shadow:0 0 22px rgba(225,26,34,.6)}
+  .bd-close{
+    position:absolute;top:18px;right:18px;width:38px;height:38px;
+    background:rgba(0,0,0,.4);border:1px solid rgba(216,207,194,.2);
+    color:var(--ink-dim);font-size:1rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .25s;border-radius:50%}
+  .bd-close:hover{color:#fff;border-color:var(--blood-bright);
+    background:var(--blood);transform:rotate(90deg)}
+  .bd-tag{font-family:'Special Elite';font-size:.74rem;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--blood-bright);margin-bottom:10px}
+  .bd-title{font-family:'Unbounded';font-weight:900;font-size:1.9rem;
+    text-transform:uppercase;color:var(--bone);line-height:1.04;margin-bottom:12px}
+  .bd-title em{color:var(--blood-bright);font-style:normal}
+  .bd-sub{font-family:'Oswald';font-size:.95rem;color:var(--ink-dim);
+    line-height:1.6;margin-bottom:30px;max-width:420px}
+  .bd-submit{
+    width:100%;background:var(--blood);color:#fff;border:none;cursor:pointer;
+    font-family:'Unbounded';font-weight:800;font-size:1rem;
+    padding:18px;text-transform:uppercase;letter-spacing:.1em;margin-top:6px;
+    transition:all .3s}
+  .bd-submit:hover{background:var(--blood-bright);
+    box-shadow:0 0 34px rgba(225,26,34,.6);letter-spacing:.16em}
+  .bd-submit:disabled{opacity:.7;cursor:wait}
+  .bd-success{display:none;text-align:center;padding:14px 0 6px}
+  .bd-success.show{display:block;animation:dlgIn .45s cubic-bezier(.16,1,.3,1)}
+  .booking-dialog.success .bd-head,
+  .booking-dialog.success #bookingForm{display:none}
+  .bd-success-mark{
+    width:74px;height:74px;margin:0 auto 22px;border-radius:50%;
+    border:2px solid #3a6b2c;color:#6fae5a;
+    display:flex;align-items:center;justify-content:center;
+    font-size:2.2rem;box-shadow:0 0 30px rgba(111,174,90,.25)}
+  .bd-success h3{font-family:'Unbounded';font-weight:900;font-size:1.7rem;
+    text-transform:uppercase;color:var(--bone);margin-bottom:12px}
+  .bd-success p{font-family:'Oswald';color:var(--ink-dim);font-size:.98rem;
+    line-height:1.6;margin-bottom:26px;max-width:380px;margin-inline:auto}
 
   /* ===== FOOTER ===== */
-  footer{background:#040303;border-top:1px solid var(--line);padding:70px 0 40px}
+  footer{position:relative;background:#040303;
+    border-top:2px solid rgba(120,8,12,.45);padding:80px 0 40px}
+  footer::before{content:"";position:absolute;top:-2px;left:0;right:0;height:80px;
+    pointer-events:none;
+    background:radial-gradient(ellipse 60% 100% at 50% 0%,rgba(120,8,12,.35),transparent 70%)}
   .foot-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:40px;margin-bottom:50px}
   .foot-brand{font-family:'Unbounded';font-weight:900;font-size:1.6rem;
     text-transform:uppercase;color:var(--bone);margin-bottom:14px;line-height:1}
@@ -433,19 +629,18 @@
 <body>
 
 <nav id="nav">
-  <div class="logo"><span class="dot"></span>СТРАХ<em style="color:var(--blood-bright);font-style:normal">.</em>QUEST</div>
+  <a href="#top" class="logo" id="logo"><span class="dot"></span>СТРАХ<em style="color:var(--blood-bright);font-style:normal">.</em>QUEST</a>
   <div class="nav-links" id="navlinks">
     <a href="#features">Чому ми</a>
     <a href="#rooms">Кімнати</a>
     <a href="#book">Бронювання</a>
-    <a href="#faq">Питання</a>
-    <a href="#book" class="nav-cta">Забронювати</a>
+    <button type="button" class="nav-cta open-booking" data-room="">Забронювати</button>
   </div>
   <button class="burger" id="burger">☰</button>
 </nav>
 
 <!-- HERO -->
-<header class="hero">
+<header class="hero" id="top">
   <div class="hero-bg"></div>
   <div class="smoke a"></div>
   <div class="smoke b"></div>
@@ -460,9 +655,10 @@
       <span class="l1">це лише</span>
       <span class="l2 glitch" data-t="ПОЧАТОК">ПОЧАТОК</span>
     </h1>
-    <p class="hero-sub">Відчуй справжній <b>хорор</b> на власній шкірі. Збери свою команду — якщо наважишся.</p>
+    <p class="hero-sub">Відчуй справжній <b>хорор</b> на власній шкірі</p>
+    <div class="team-banner">Збери свою команду, <em>якщо наважишся</em></div>
     <div class="hero-actions">
-      <a href="#book" class="btn-primary"><span>Забронювати зараз →</span></a>
+      <button type="button" class="btn-primary open-booking" data-room=""><span>Забронювати зараз →</span></button>
       <a href="#rooms" class="btn-ghost">Обери свій кошмар</a>
     </div>
   </div>
@@ -487,32 +683,32 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-tag">Що на тебе чекає</div>
-      <h2 class="sec-title">Це не гра.<br>Це переживання.</h2>
+      <h2 class="sec-title">Чому саме<br>наш квест</h2>
     </div>
     <div class="feat-grid reveal">
       <div class="feat">
         <span class="num">01</span>
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4 1.5 6h11C19 13 20.5 11.5 20.5 9A7 7 0 0 0 12 2Z"/><path d="M8 21h8M9 18v3M15 18v3"/><circle cx="9.5" cy="9" r="1.2" fill="currentColor"/><circle cx="14.5" cy="9" r="1.2" fill="currentColor"/></svg></div>
         <h3>100% адреналін</h3>
-        <p>Непередбачуваний сюжет та реалістична атмосфера тримають у напрузі до останньої секунди.</p>
+        <p>Непередбачуваний сюжет та реалістична атмосфера</p>
       </div>
       <div class="feat">
         <span class="num">02</span>
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11V5a1.5 1.5 0 0 1 3 0v5M12 10V4a1.5 1.5 0 0 1 3 0v6M15 11V6a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7 7 7 0 0 1-5-2l-3.5-4a1.6 1.6 0 0 1 2.4-2.1L9 16V6a1.5 1.5 0 0 1 3 0"/></svg></div>
         <h3>Імерсивний світ</h3>
-        <p>Повне занурення у темряву та жах. Декорації, звук і запах — усе працює проти тебе.</p>
+        <p>Повне занурення у темряву та жах</p>
       </div>
       <div class="feat">
         <span class="num">03</span>
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4c5 0 9 4.5 10 8-1 3.5-5 8-10 8S3 15.5 2 12c1-3.5 5-8 10-8Z"/><circle cx="12" cy="12" r="3.4"/></svg></div>
         <h3>Професійні актори</h3>
-        <p>Живий страх і справжні емоції. За тобою стежать ті, від кого не сховатися.</p>
+        <p>Живий страх. Справжні емоції</p>
       </div>
       <div class="feat">
         <span class="num">04</span>
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.4" fill="currentColor"/></svg></div>
         <h3>Кімнати на вибір</h3>
-        <p>Різні рівні складності для сміливих. Від першого випробування до екстриму.</p>
+        <p>Різні рівні складності для сміливих</p>
       </div>
     </div>
   </div>
@@ -522,54 +718,46 @@
 <section class="block" id="rooms">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="sec-tag">Обери свій кошмар</div>
-      <h2 class="sec-title">Чотири історії.<br>Жоден вихід не легкий.</h2>
+      <div class="sec-tag">Чотири кімнати</div>
+      <h2 class="sec-title">Обери свій<br>кошмар</h2>
     </div>
     <div class="rooms-grid">
-      <div class="room reveal">
+      <div class="room reveal open-booking" data-room="Психлікарня" role="button" tabindex="0">
         <div class="room-bg scene-asylum"></div>
         <div class="room-content">
-          <div class="room-num">№ 01 · ~60 ХВ</div>
           <h3>Психлікарня</h3>
           <div class="room-meta">
             <span class="difficulty d-easy">Рівень: легкий</span>
-            <span style="color:var(--ink-dim);font-size:.85rem">Покинуті палати пам'ятають кожен крик</span>
             <span class="room-arrow">→</span>
           </div>
         </div>
       </div>
-      <div class="room reveal">
+      <div class="room reveal open-booking" data-room="Будинок у лісі" role="button" tabindex="0">
         <div class="room-bg scene-cabin"></div>
         <div class="room-content">
-          <div class="room-num">№ 02 · ~60 ХВ</div>
           <h3>Будинок у лісі</h3>
           <div class="room-meta">
             <span class="difficulty d-mid">Рівень: середній</span>
-            <span style="color:var(--ink-dim);font-size:.85rem">Світло у вікні — це не порятунок</span>
             <span class="room-arrow">→</span>
           </div>
         </div>
       </div>
-      <div class="room reveal">
+      <div class="room reveal open-booking" data-room="Культ" role="button" tabindex="0">
         <div class="room-bg scene-cult"></div>
         <div class="room-content">
-          <div class="room-num">№ 03 · ~70 ХВ</div>
           <h3>Культ</h3>
           <div class="room-meta">
             <span class="difficulty d-hard">Рівень: важкий</span>
-            <span style="color:var(--ink-dim);font-size:.85rem">Ритуал вже почався. Ти — частина його</span>
             <span class="room-arrow">→</span>
           </div>
         </div>
       </div>
-      <div class="room reveal">
+      <div class="room reveal open-booking" data-room="Морг" role="button" tabindex="0">
         <div class="room-bg scene-morgue"></div>
         <div class="room-content">
-          <div class="room-num">№ 04 · ~70 ХВ</div>
           <h3>Морг</h3>
           <div class="room-meta">
             <span class="difficulty d-extreme">Рівень: екстрим</span>
-            <span style="color:var(--ink-dim);font-size:.85rem">Не всі тіла тут мертві</span>
             <span class="room-arrow">→</span>
           </div>
         </div>
@@ -591,7 +779,7 @@
     <div class="book-grid">
       <div class="book-left reveal">
         <div class="sec-tag">Бронювання</div>
-        <h2>Готовий зустрітись<br>зі своїм <em>страхом?</em></h2>
+        <h2><em>Забронюй</em><br>зараз</h2>
         <p>Збери команду від 2 до 6 гравців. Залиш заявку — ми передзвонимо й підтвердимо твій сеанс.</p>
         <div class="info-list">
           <div class="info-row">
@@ -604,76 +792,75 @@
           </div>
           <div class="info-row">
             <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 20c0-2.4 1-4.4 2.6-5.4"/></svg></div>
-            <div><div class="lbl">Гравці</div><div class="val">2–6 осіб · від 16 років</div></div>
+            <div><div class="lbl">Гравці</div><div class="val">2–6 осіб · від 18 років</div></div>
           </div>
         </div>
       </div>
 
       <div class="book-card reveal">
-        <div class="cardtag">Заброньовано назад дороги немає</div>
-        <h3>Залиш заявку</h3>
-        <div class="field">
-          <label>Твоє ім'я</label>
-          <input type="text" id="f-name" placeholder="Як до тебе звертатись">
-        </div>
-        <div class="field">
-          <label>Телефон</label>
-          <input type="tel" id="f-phone" placeholder="+380 __ ___ __ __">
-        </div>
-        <div class="field">
-          <label>Оберіть кімнату</label>
-          <select id="f-room">
-            <option>Психлікарня — легкий</option>
-            <option>Будинок у лісі — середній</option>
-            <option>Культ — важкий</option>
-            <option>Морг — екстрим</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Кількість гравців</label>
-          <select id="f-count">
-            <option>2 гравці</option><option>3 гравці</option><option>4 гравці</option>
-            <option>5 гравців</option><option>6 гравців</option>
-          </select>
-        </div>
-        <button id="submitBtn">Заброньувати сеанс</button>
-        <p class="form-note">Натискаючи кнопку, ти підтверджуєш, що тобі є 16 років.</p>
+        <div class="cardtag">Переживи те, про що інші лише чули</div>
+        <h3>Готовий?</h3>
+        <p class="book-card-text">Залиш заявку — ми передзвонимо й підтвердимо твій сеанс. Назад дороги не буде.</p>
+        <button class="open-booking" data-room="">Заброньувати сеанс</button>
+        <p class="form-note">Натискаючи, ти підтверджуєш, що тобі є 18 років.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="block" id="faq">
-  <div class="wrap">
-    <div class="sec-head reveal" style="text-align:center">
-      <div class="sec-tag" style="justify-content:center">Перед тим як зайти</div>
-      <h2 class="sec-title">Часті питання</h2>
+<!-- BOOKING DIALOG -->
+<dialog id="bookingDialog" class="booking-dialog">
+  <div class="bd-inner">
+    <button class="bd-close" id="bdClose" aria-label="Закрити">✕</button>
+    <div class="bd-head">
+      <div class="bd-tag">Заявка на сеанс</div>
+      <h3 class="bd-title">Заброньуй <em>свій кошмар</em></h3>
+      <p class="bd-sub">Залиш контакти — ми передзвонимо й підтвердимо час. Назад дороги не буде.</p>
     </div>
-    <div class="faq-list reveal">
-      <div class="faq-item">
-        <button class="faq-q">Наскільки це страшно насправді? <span class="sign">+</span></button>
-        <div class="faq-a"><p>Дуже. Це не атракціон з картонними монстрами — живі актори, повна темрява, фізичний контакт і непередбачуваний сценарій. Якщо ти прийшов «просто подивитись» — ти прийшов не туди.</p></div>
+    <form id="bookingForm" novalidate>
+      <div class="field">
+        <label for="f-name">Твоє ім'я</label>
+        <input type="text" id="f-name" name="name" placeholder="Як до тебе звертатись" autocomplete="name">
+        <span class="err" data-for="name"></span>
       </div>
-      <div class="faq-item">
-        <button class="faq-q">Актори можуть мене торкатись? <span class="sign">+</span></button>
-        <div class="faq-a"><p>Так, у наших квестах передбачено контакт з акторами. Це частина імерсивного досвіду. Жодних травм — лише страх, від якого мурашки по шкірі.</p></div>
+      <div class="field">
+        <label for="f-phone">Телефон</label>
+        <input type="tel" id="f-phone" name="phone" placeholder="+380 __ ___ __ __" autocomplete="tel">
+        <span class="err" data-for="phone"></span>
       </div>
-      <div class="faq-item">
-        <button class="faq-q">Скільки людей потрібно для команди? <span class="sign">+</span></button>
-        <div class="faq-a"><p>Від 2 до 6 гравців. Оптимально 3–4 — достатньо, щоб не залишитись на самоті, але кожному вистачить власної дози жаху.</p></div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-room">Кімната</label>
+          <select id="f-room" name="room">
+            <option value="Психлікарня">Психлікарня — легкий</option>
+            <option value="Будинок у лісі">Будинок у лісі — середній</option>
+            <option value="Культ">Культ — важкий</option>
+            <option value="Морг">Морг — екстрим</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-count">Гравців</label>
+          <select id="f-count" name="count">
+            <option>2</option><option>3</option><option selected>4</option>
+            <option>5</option><option>6</option>
+          </select>
+        </div>
       </div>
-      <div class="faq-item">
-        <button class="faq-q">Є вікові обмеження? <span class="sign">+</span></button>
-        <div class="faq-a"><p>Так. Допуск з 16 років, а рекомендований вік — 18+. Контент не призначений для людей зі слабкими нервами, вагітних та осіб із серцевими захворюваннями.</p></div>
+      <div class="field">
+        <label for="f-date">Бажана дата та час</label>
+        <input type="text" id="f-date" name="date" placeholder="Напр.: 25 жовтня, 20:00">
       </div>
-      <div class="faq-item">
-        <button class="faq-q">Чи можна вийти посеред квесту? <span class="sign">+</span></button>
-        <div class="faq-a"><p>Звісно. Безпека — понад усе. Існує стоп-слово, після якого актори миттєво вийдуть з образу, і ми виведемо тебе. Але майже ніхто його не використовує. Майже.</p></div>
-      </div>
+      <button type="submit" class="bd-submit" id="bdSubmit">Заброньувати сеанс</button>
+      <p class="form-note">Натискаючи, ти підтверджуєш, що тобі є 18 років. Бронювання щодня 10:00–22:00 · вул. Темна, 13</p>
+    </form>
+    <div class="bd-success" id="bdSuccess">
+      <div class="bd-success-mark">✓</div>
+      <h3>Заявку прийнято</h3>
+      <p id="bdSuccessText">Чекай на дзвінок. І готуйся — страх це лише початок.</p>
+      <button class="bd-submit" id="bdDone">Закрити</button>
     </div>
   </div>
-</section>
+</dialog>
 
 <!-- FOOTER -->
 <footer>
@@ -688,19 +875,13 @@
         <a href="#features">Чому ми</a>
         <a href="#rooms">Кімнати</a>
         <a href="#book">Бронювання</a>
-        <a href="#faq">Питання</a>
       </div>
       <div class="foot-col">
         <h4>Контакти</h4>
         <p>вул. Темна, 13</p>
         <p>Щодня 10:00 – 22:00</p>
+        <!-- TODO: замінити на реальний номер квест-руму -->
         <a href="tel:+380000000000">+380 00 000 00 00</a>
-      </div>
-      <div class="foot-col">
-        <h4>Соцмережі</h4>
-        <a href="#">Instagram</a>
-        <a href="#">Telegram</a>
-        <a href="#">TikTok</a>
       </div>
     </div>
     <div class="foot-bottom">
@@ -721,9 +902,26 @@
     links.classList.toggle('open');
     burger.textContent=links.classList.contains('open')?'✕':'☰';
   });
-  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
-    links.classList.remove('open');burger.textContent='☰';
-  }));
+
+  // anchor menu links → guaranteed smooth scroll
+  document.querySelectorAll('a[href^="#"]:not(#logo)').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const id=a.getAttribute('href').slice(1);
+      const target=document.getElementById(id);
+      if(target){
+        e.preventDefault();
+        const y=target.getBoundingClientRect().top+window.scrollY-72;
+        window.scrollTo({top:y,behavior:'smooth'});
+        links.classList.remove('open');burger.textContent='☰';
+      }
+    });
+  });
+
+  // logo → scroll to top smoothly
+  document.getElementById('logo').addEventListener('click',e=>{
+    e.preventDefault();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
 
   // scroll reveal
   const io=new IntersectionObserver(es=>{
@@ -731,32 +929,92 @@
   },{threshold:.16});
   document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
-  // faq accordion
-  document.querySelectorAll('.faq-q').forEach(q=>{
-    q.addEventListener('click',()=>{
-      const item=q.parentElement,a=item.querySelector('.faq-a'),wasOpen=item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i=>{
-        i.classList.remove('open');i.querySelector('.faq-a').style.maxHeight=null;
-      });
-      if(!wasOpen){item.classList.add('open');a.style.maxHeight=a.scrollHeight+'px'}
+  // ===== BOOKING DIALOG =====
+  const dlg=document.getElementById('bookingDialog');
+  const form=document.getElementById('bookingForm');
+  const roomSel=document.getElementById('f-room');
+  const nameI=document.getElementById('f-name');
+  const phoneI=document.getElementById('f-phone');
+  const submitB=document.getElementById('bdSubmit');
+
+  function openDialog(room){
+    dlg.classList.remove('success','closing');
+    form.reset();
+    document.querySelectorAll('#bookingForm .err').forEach(e=>e.textContent='');
+    document.querySelectorAll('#bookingForm input').forEach(i=>i.classList.remove('invalid'));
+    if(room){
+      [...roomSel.options].forEach(o=>{if(o.value===room)roomSel.value=room});
+    }
+    if(typeof dlg.showModal==='function')dlg.showModal();
+    else dlg.setAttribute('open','');
+    document.body.style.overflow='hidden';
+    setTimeout(()=>nameI.focus(),120);
+  }
+  function closeDialog(){
+    dlg.classList.add('closing');
+    setTimeout(()=>{
+      dlg.classList.remove('closing');
+      if(typeof dlg.close==='function')dlg.close();
+      else dlg.removeAttribute('open');
+      document.body.style.overflow='';
+    },260);
+  }
+
+  // open from any CTA
+  document.querySelectorAll('.open-booking').forEach(el=>{
+    el.addEventListener('click',()=>{
+      openDialog(el.getAttribute('data-room')||'');
+      links.classList.remove('open');burger.textContent='☰';
     });
+    if(el.getAttribute('role')==='button'){
+      el.addEventListener('keydown',e=>{
+        if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click()}
+      });
+    }
   });
 
-  // booking form
-  document.getElementById('submitBtn').addEventListener('click',()=>{
-    const n=document.getElementById('f-name').value.trim();
-    const p=document.getElementById('f-phone').value.trim();
-    const btn=document.getElementById('submitBtn');
-    if(!n||!p){
-      btn.textContent='Заповни ім\'я та телефон';
-      btn.style.background='#5c0a0d';
-      setTimeout(()=>{btn.textContent='Заброньувати сеанс';btn.style.background='';},2200);
-      return;
-    }
-    const room=document.getElementById('f-room').value;
-    btn.textContent='✓ Заявку прийнято — чекай на дзвінок';
-    btn.style.background='#3a6b2c';
-    btn.disabled=true;
+  // close: button, backdrop click, Esc
+  document.getElementById('bdClose').addEventListener('click',closeDialog);
+  document.getElementById('bdDone').addEventListener('click',closeDialog);
+  dlg.addEventListener('click',e=>{if(e.target===dlg)closeDialog()});
+  dlg.addEventListener('cancel',e=>{e.preventDefault();closeDialog()});
+
+  // validation helpers
+  function setErr(input,msg){
+    input.classList.add('invalid');
+    const s=form.querySelector('.err[data-for="'+input.name+'"]');
+    if(s)s.textContent=msg;
+  }
+  function clearErr(input){
+    input.classList.remove('invalid');
+    const s=form.querySelector('.err[data-for="'+input.name+'"]');
+    if(s)s.textContent='';
+  }
+  [nameI,phoneI].forEach(i=>i.addEventListener('input',()=>clearErr(i)));
+
+  // submit
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    let ok=true;
+    const n=nameI.value.trim();
+    const p=phoneI.value.trim();
+    if(n.length<2){setErr(nameI,'Вкажи, як до тебе звертатись');ok=false}
+    const digits=p.replace(/\D/g,'');
+    if(digits.length<9){setErr(phoneI,'Вкажи коректний номер телефону');ok=false}
+    if(!ok)return;
+
+    submitB.disabled=true;
+    submitB.textContent='Відправляємо…';
+    // imitate request; real backend (Resend / Convex) plugs in here
+    setTimeout(()=>{
+      const room=roomSel.value;
+      document.getElementById('bdSuccessText').textContent=
+        'Кімната «'+room+'». Чекай на дзвінок — ми підтвердимо час. Страх це лише початок.';
+      dlg.classList.add('success');
+      document.getElementById('bdSuccess').classList.add('show');
+      submitB.disabled=false;
+      submitB.textContent='Заброньувати сеанс';
+    },900);
   });
 </script>
 </body>
